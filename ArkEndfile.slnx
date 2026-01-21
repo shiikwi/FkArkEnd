@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Beyond.Security/Beyond.Security.csproj" Id="9b83331a-77f4-4d3e-938c-1da5e3691211" />
+  <Project Path="Beyond.VFS/Beyond.VFS.csproj" Id="7d84d7a3-edd6-4fc8-b027-833e9e1c6a01" />
+</Solution>
