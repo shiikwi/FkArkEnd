@@ -10,8 +10,18 @@ namespace Beyond.VFS
         {
             var infile = args[0];
             var outfile = Path.ChangeExtension(infile, ".json");
+            var ext = Path.GetExtension(infile);
             var dump = new DumpRes();
-            dump.DumpBlc(infile, outfile);
+            if (ext == ".blc")
+            {
+                dump.DumpBlc(infile, outfile);
+
+            }
+            else if (ext == ".chk")
+            {
+                dump.DumpChk(infile);
+            }
+
         }
     }
 }
