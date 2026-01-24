@@ -150,6 +150,7 @@ namespace ResConv
             if (!Directory.Exists(outPath)) Directory.CreateDirectory(outPath);
             string fullPath = Path.Combine(outPath, $"{id}{ext}");
             File.WriteAllBytes(fullPath, data);
+            //Console.WriteLine($"Extracted {Path.GetFileName(fullPath)}");
         }
 
     }

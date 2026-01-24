@@ -7,7 +7,7 @@ namespace ResConv
     public class AkSoundEngine
     {
         private const uint ENC_MAGIC = 0X4478293A;   //:)xD
-        private const uint PLAIN_MAGIC = 0X4B435041; //APAK
+        private const uint PLAIN_MAGIC = 0X4B504B41; //AKPK
         private const uint MULTIPLIER = 0x4E11C23;
         private const uint XOR_CONSTANT = 0X9C5A0B29;
 

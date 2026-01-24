@@ -32,7 +32,7 @@ namespace Beyond.VFS
                     }
                 }
 
-                string outPath = Path.Combine(outDir, fvf.FileName);
+                string outPath = Path.Combine(Path.GetDirectoryName(outDir)!, fvf.FileName);
                 string dir = Path.GetDirectoryName(outPath)!;
                 if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
                 File.WriteAllBytes(outPath, buffer);
