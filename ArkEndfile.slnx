@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="Beyond.Security/Beyond.Security.csproj" Id="9b83331a-77f4-4d3e-938c-1da5e3691211" />
+  <Project Path="Beyond.SparkBuffer/Beyond.SparkBuffer.csproj" Id="926a0523-2bb0-433b-af98-b1c6df3760ce" />
   <Project Path="Beyond.VFS/Beyond.VFS.csproj" Id="7d84d7a3-edd6-4fc8-b027-833e9e1c6a01" />
   <Project Path="ResConv/ResConv.csproj" Id="7448256a-88f3-4030-9831-82d88cebaf0d" />
 </Solution>
