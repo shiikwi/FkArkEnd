@@ -436,3 +436,4 @@ FodyWeavers.xsd
 *i64
 il2cpp
 dummpyDll
+GameAssembly.dll.*

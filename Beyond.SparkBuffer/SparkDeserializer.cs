@@ -11,6 +11,7 @@ namespace Beyond.SparkBuffer
         private int _typeDefsPtr;
         private int _rootDefPtr;
         private int _dataPtr;
+        private int _stringPtr;
 
         public SparkScheme scheme = new SparkScheme();
 
@@ -85,13 +86,60 @@ namespace Beyond.SparkBuffer
 
         private void ExportRootDef()
         {
-
+            int pos = _rootDefPtr;
+            var root = new SparkRoot();
+            root.rootType = (SparkType)data[pos++];
+            root.rootName = BinaryStream.ReadCString(ref data, ref pos);
+            switch (root.rootType)
+            {
+                case SparkType.Bean:
+                    {
+                        pos = Utils.Align(pos, 4);
+                        root.rootTypeHash = BinaryStream.ReadInt32(ref data, ref pos);
+                        break;
+                    }
+                case SparkType.Array:
+                    {
+                        root.subType1 = (SparkType)data[pos++];
+                        if (root.subType1 == SparkType.Enum || root.subType1 == SparkType.Bean)
+                        {
+                            root.subTypeHash1 = BinaryStream.ReadInt32(ref data, ref pos);
+                            root.rootTypeHash = root.subTypeHash1;
+                        }
+                        break;
+                    }
+                case SparkType.Map:
+                    {
+                        root.subType1 = (SparkType)data[pos++];
+                        if (root.subType1 == SparkType.Enum)
+                        {
+                            pos = Utils.Align(pos, 4);
+                            root.subTypeHash1 = BinaryStream.ReadInt32(ref data, ref pos);
+                        }
+                        root.subType2 = (SparkType)data[pos++];
+                        if (root.subType2 == SparkType.Enum || root.subType2 == SparkType.Bean)
+                        {
+                            pos = Utils.Align(pos, 4);
+                            root.subTypeHash2 = BinaryStream.ReadInt32(ref data, ref pos);
+                        }
+                        break;
+                    }
+            }
+            scheme.Root = root;
+            _stringPtr = pos;
         }
 
 
         private void ExportStrings()
         {
-
+            int pos = Utils.Align(_stringPtr, 4);
+            int StringCount = BinaryStream.ReadInt32(ref data, ref pos);
+            //int bytes = data[pos];
+            //if (bytes == 0) pos++;  // SparkType.Map skip 0x00
+            for (int i = 0; i < StringCount; i++)
+            {
+                scheme.StringPool.Add(BinaryStream.ReadCString(ref data, ref pos));
+            }
         }
 
         private JToken ExportDataFromRoot()
@@ -167,5 +215,6 @@ namespace Beyond.SparkBuffer
 
             return field;
         }
+
     }
 }
