@@ -316,9 +316,9 @@ namespace Beyond.SparkBuffer
                 case SparkType.Byte:
                     return data[currentPos++];
                 case SparkType.Int:
-                    return BinaryStream.ReadInt32(ref data, ref currentPos);
+                    return (uint)BinaryStream.ReadInt32(ref data, ref currentPos);
                 case SparkType.Long:
-                    return BinaryStream.ReadInt64(ref data, ref currentPos);
+                    return (ulong)BinaryStream.ReadInt64(ref data, ref currentPos);
                 case SparkType.Float:
                     return BinaryStream.ReadSingle(ref data, ref currentPos);
                 case SparkType.Double:
@@ -336,7 +336,7 @@ namespace Beyond.SparkBuffer
                 case SparkType.String:
                     {
                         int Offset = BinaryStream.ReadInt32(ref data, ref currentPos);
-                        if (Offset <= 0 || Offset == -1) return null;
+                        if (Offset <= 0) return null;
                         if (scheme.StringPool.TryGetValue(Offset, out var str))
                             return str;
                         return string.Empty;
@@ -344,13 +344,13 @@ namespace Beyond.SparkBuffer
                 case SparkType.Bean:
                     {
                         int OffPtr = BinaryStream.ReadInt32(ref data, ref currentPos);
-                        if (OffPtr <= 0 || OffPtr == -1) return null;
+                        if (OffPtr <= 0) return null;
                         return ExportBeanData(OffPtr, typeHash);
                     }
                 case SparkType.Array:
                     {
                         int OffPtr = BinaryStream.ReadInt32(ref data, ref currentPos);
-                        if (OffPtr <= 0 || OffPtr == -1) return null;
+                        if (OffPtr <= 0) return null;
                         var etype = SparkType.Bean;
                         if (field is ArrayField af) etype = af.ElementType;
                         return ExportArrayData(OffPtr, etype, typeHash);
@@ -358,7 +358,7 @@ namespace Beyond.SparkBuffer
                 case SparkType.Map:
                     {
                         int OffPtr = BinaryStream.ReadInt32(ref data, ref currentPos);
-                        if (OffPtr <= 0 || OffPtr == -1) return null;
+                        if (OffPtr <= 0) return null;
                         var mf = (MapField)field;
                         return ExportMapData(OffPtr, mf.KeyType, mf.KeyTypeHash, mf.ValueType, mf.ValueTypeHash);
                     }
