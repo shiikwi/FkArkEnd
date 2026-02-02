@@ -151,13 +151,13 @@ namespace Beyond.SparkBuffer
             };
 
 
-#if false
+#if true
             switch (scheme.Root.rootType)
             {
                 case SparkType.Bean:
                     return ExportBeanData(_dataPtr, scheme.Root.rootTypeHash);
                 case SparkType.Map:
-                    return ExportMapData(_dataPtr);
+                    return ExportMapData(_dataPtr, scheme.Root.subType1, scheme.Root.subTypeHash1, scheme.Root.subType2, scheme.Root.subTypeHash2);
                 case SparkType.Array:
                     return ExportArrayData(_dataPtr, scheme.Root.subType1, scheme.Root.rootTypeHash);
                 default:
@@ -211,11 +211,22 @@ namespace Beyond.SparkBuffer
                     }
                 case SparkType.Map:
                     {
-                        //var mapfield = new MapField();
-                        //mapfield.KeyType = (SparkType)data[pos++];
-                        throw new NotImplementedException("check mapping field file");
+                        var mapfield = new MapField();
+                        mapfield.KeyType = (SparkType)data[pos++];
+                        if (mapfield.KeyType == SparkType.Enum || mapfield.KeyType == SparkType.Bean)
+                        {
+                            pos = Utils.Align(pos, 4);
+                            mapfield.KeyTypeHash = BinaryStream.ReadInt32(ref data, ref pos);
+                        }
+                        mapfield.ValueType = (SparkType)data[pos++];
+                        if (mapfield.ValueType == SparkType.Enum || mapfield.ValueType == SparkType.Bean)
+                        {
+                            pos = Utils.Align(pos, 4);
+                            mapfield.ValueTypeHash = BinaryStream.ReadInt32(ref data, ref pos);
+                        }
+                        field = mapfield;
+                        break;
                     }
-
                 default:
                     field = new Field();
                     break;
@@ -231,9 +242,8 @@ namespace Beyond.SparkBuffer
             return field;
         }
 
-        private JObject ExportMapData(int addr)
+        private JObject ExportMapData(int addr, SparkType keyType, int keyTypeHash, SparkType valueType, int valueTypeHash)
         {
-            //Only rootType may call
             int pos = addr;
             var result = new JObject();
             var slots = new List<HashSlots>();
@@ -251,8 +261,8 @@ namespace Beyond.SparkBuffer
                 int entryPos = slot.Offset;
                 for (int j = 0; j < slot.BucktSize; j++)
                 {
-                    JToken key = ExportElementDat(scheme.Root.subType1, scheme.Root.subTypeHash1, ref entryPos);
-                    JToken val = ExportElementDat(scheme.Root.subType2, scheme.Root.subTypeHash2, ref entryPos);
+                    JToken key = ExportElementDat(keyType, keyTypeHash, ref entryPos);
+                    JToken val = ExportElementDat(valueType, valueTypeHash, ref entryPos);
                     result[key.ToString()] = val;
                 }
             }
@@ -272,7 +282,7 @@ namespace Beyond.SparkBuffer
                 int refHash = 0;
                 if (field is BeanField bf) refHash = bf.beanType.TypeHash;
                 else if (field is ArrayField af) { refHash = af.ElementTypeHash; }
-                else if (field is MapField mf) throw new NotImplementedException("check mapping field file");
+                else if (field is MapField mf) { }
 
                 jobj[field.Name] = ExportElementDat(field.Type, refHash, ref fieldOffset, field);
             }
@@ -326,6 +336,7 @@ namespace Beyond.SparkBuffer
                 case SparkType.String:
                     {
                         int Offset = BinaryStream.ReadInt32(ref data, ref currentPos);
+                        if (Offset <= 0 || Offset == -1) return null;
                         if (scheme.StringPool.TryGetValue(Offset, out var str))
                             return str;
                         return string.Empty;
@@ -333,11 +344,13 @@ namespace Beyond.SparkBuffer
                 case SparkType.Bean:
                     {
                         int OffPtr = BinaryStream.ReadInt32(ref data, ref currentPos);
+                        if (OffPtr <= 0 || OffPtr == -1) return null;
                         return ExportBeanData(OffPtr, typeHash);
                     }
                 case SparkType.Array:
                     {
                         int OffPtr = BinaryStream.ReadInt32(ref data, ref currentPos);
+                        if (OffPtr <= 0 || OffPtr == -1) return null;
                         var etype = SparkType.Bean;
                         if (field is ArrayField af) etype = af.ElementType;
                         return ExportArrayData(OffPtr, etype, typeHash);
@@ -345,7 +358,9 @@ namespace Beyond.SparkBuffer
                 case SparkType.Map:
                     {
                         int OffPtr = BinaryStream.ReadInt32(ref data, ref currentPos);
-                        return ExportMapData(OffPtr);
+                        if (OffPtr <= 0 || OffPtr == -1) return null;
+                        var mf = (MapField)field;
+                        return ExportMapData(OffPtr, mf.KeyType, mf.KeyTypeHash, mf.ValueType, mf.ValueTypeHash);
                     }
                 default:
                     return "Parse Error";
