@@ -22,5 +22,25 @@ namespace Beyond.SparkBuffer
             return res;
         }
 
+        public static long ReadInt64(ref byte[] data, ref int pos)
+        {
+            var res = BitConverter.ToInt64(data, pos);
+            pos += 8;
+            return res;
+        }
+
+        public static float ReadSingle(ref byte[] data, ref int pos)
+        {
+            var res = BitConverter.ToSingle(data, pos);
+            pos += 4;
+            return res;
+        }
+
+        public static double ReadDouble(ref byte[] data, ref int pos)
+        {
+            var res = BitConverter.ToDouble(data, pos);
+            pos += 8;
+            return res;
+        }
     }
 }

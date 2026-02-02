@@ -138,7 +138,7 @@ namespace Beyond.SparkBuffer
             //if (bytes == 0) pos++;  // SparkType.Map skip 0x00
             for (int i = 0; i < StringCount; i++)
             {
-                scheme.StringPool.Add(BinaryStream.ReadCString(ref data, ref pos));
+                scheme.StringPool[pos] = BinaryStream.ReadCString(ref data, ref pos);
             }
         }
 
@@ -150,6 +150,20 @@ namespace Beyond.SparkBuffer
                 Converters = new List<JsonConverter> { new StringEnumConverter() },
             };
 
+
+#if false
+            switch (scheme.Root.rootType)
+            {
+                case SparkType.Bean:
+                    return ExportBeanData(_dataPtr, scheme.Root.rootTypeHash);
+                case SparkType.Map:
+                    return ExportMapData(_dataPtr);
+                case SparkType.Array:
+                    return ExportArrayData(_dataPtr, scheme.Root.subType1, scheme.Root.rootTypeHash);
+                default:
+                    return "Unknown Root type";
+            }
+#else
             return JsonConvert.SerializeObject(new
             {
                 Header = new
@@ -163,6 +177,7 @@ namespace Beyond.SparkBuffer
                 Beans = scheme.Beans,
                 StringPool = scheme.StringPool
             }, settings);
+#endif
         }
 
         private Field ParseField(ref int pos, ref int currentPos)
@@ -215,6 +230,128 @@ namespace Beyond.SparkBuffer
 
             return field;
         }
+
+        private JObject ExportMapData(int addr)
+        {
+            //Only rootType may call
+            int pos = addr;
+            var result = new JObject();
+            var slots = new List<HashSlots>();
+            int slotCount = BinaryStream.ReadInt32(ref data, ref pos);
+            for (int i = 0; i < slotCount; i++)
+            {
+                var solt = new HashSlots();
+                solt.Offset = BinaryStream.ReadInt32(ref data, ref pos);
+                solt.BucktSize = BinaryStream.ReadInt32(ref data, ref pos);
+                slots.Add(solt);
+            }
+            foreach (var slot in slots)
+            {
+                if (slot.BucktSize <= 0) continue;
+                int entryPos = slot.Offset;
+                for (int j = 0; j < slot.BucktSize; j++)
+                {
+                    JToken key = ExportElementDat(scheme.Root.subType1, scheme.Root.subTypeHash1, ref entryPos);
+                    JToken val = ExportElementDat(scheme.Root.subType2, scheme.Root.subTypeHash2, ref entryPos);
+                    result[key.ToString()] = val;
+                }
+            }
+            return result;
+        }
+
+        private JObject ExportBeanData(int addr, int typeHash)
+        {
+            if (!scheme.Beans.TryGetValue(typeHash, out var bean))
+                return new JObject { ["_error"] = $"Type {typeHash} not found" };
+            var jobj = new JObject();
+
+            foreach (var field in bean.Fields)
+            {
+                int fieldOffset = field.Offset + addr;
+
+                int refHash = 0;
+                if (field is BeanField bf) refHash = bf.beanType.TypeHash;
+                else if (field is ArrayField af) { refHash = af.ElementTypeHash; }
+                else if (field is MapField mf) throw new NotImplementedException("check mapping field file");
+
+                jobj[field.Name] = ExportElementDat(field.Type, refHash, ref fieldOffset, field);
+            }
+            return jobj;
+        }
+
+        private JArray ExportArrayData(int addr, SparkType type, int typeHash)
+        {
+            int pos = addr;
+            int align = Utils.GetAlignment(type);
+            pos = Utils.Align(pos, align);
+
+            var jarr = new JArray();
+            int count = BinaryStream.ReadInt32(ref data, ref pos);
+            for (int i = 0; i < count; i++)
+            {
+                jarr.Add(ExportElementDat(type, typeHash, ref pos));
+            }
+            return jarr;
+        }
+
+        private JToken ExportElementDat(SparkType type, int typeHash, ref int currentPos, Field field = null)
+        {
+            int align = Utils.GetAlignment(type);
+            currentPos = Utils.Align(currentPos, align);
+
+            switch (type)
+            {
+                case SparkType.Bool:
+                    return data[currentPos++] != 0;
+                case SparkType.Byte:
+                    return data[currentPos++];
+                case SparkType.Int:
+                    return BinaryStream.ReadInt32(ref data, ref currentPos);
+                case SparkType.Long:
+                    return BinaryStream.ReadInt64(ref data, ref currentPos);
+                case SparkType.Float:
+                    return BinaryStream.ReadSingle(ref data, ref currentPos);
+                case SparkType.Double:
+                    return BinaryStream.ReadDouble(ref data, ref currentPos);
+                case SparkType.Enum:
+                    {
+                        int val = BinaryStream.ReadInt32(ref data, ref currentPos);
+                        if (scheme.Enums.TryGetValue(typeHash, out var enu))
+                        {
+                            var pair = enu.Items.FirstOrDefault(kvp => kvp.Value == val);
+                            if (pair.Key != null) return pair.Key;
+                        }
+                        return val;
+                    }
+                case SparkType.String:
+                    {
+                        int Offset = BinaryStream.ReadInt32(ref data, ref currentPos);
+                        if (scheme.StringPool.TryGetValue(Offset, out var str))
+                            return str;
+                        return string.Empty;
+                    }
+                case SparkType.Bean:
+                    {
+                        int OffPtr = BinaryStream.ReadInt32(ref data, ref currentPos);
+                        return ExportBeanData(OffPtr, typeHash);
+                    }
+                case SparkType.Array:
+                    {
+                        int OffPtr = BinaryStream.ReadInt32(ref data, ref currentPos);
+                        var etype = SparkType.Bean;
+                        if (field is ArrayField af) etype = af.ElementType;
+                        return ExportArrayData(OffPtr, etype, typeHash);
+                    }
+                case SparkType.Map:
+                    {
+                        int OffPtr = BinaryStream.ReadInt32(ref data, ref currentPos);
+                        return ExportMapData(OffPtr);
+                    }
+                default:
+                    return "Parse Error";
+            }
+        }
+
 
     }
 }

@@ -8,7 +8,7 @@ namespace ResConv
     {
         static void Main(string[] args)
         {
-            var infile = "ActivityTable.bytes";
+            var infile = args[0];
             var ext = Path.GetExtension(infile);
             if (ext == ".pck")
             {

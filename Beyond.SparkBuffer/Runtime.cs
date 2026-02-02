@@ -73,12 +73,18 @@ namespace Beyond.SparkBuffer.Runtime
         public int subTypeHash2;
     }
 
+    public struct HashSlots
+    {
+        public int Offset;
+        public int BucktSize;
+    }
+
     public class SparkScheme
     {
         public Dictionary<int, SparkBean> Beans = new Dictionary<int, SparkBean>();
         public Dictionary<int, SparkEnum> Enums = new Dictionary<int, SparkEnum>();
 
         public SparkRoot Root = new SparkRoot();
-        public List<string> StringPool = new List<string>();
+        public Dictionary<int, string> StringPool = new Dictionary<int, string>();
     }
 }
