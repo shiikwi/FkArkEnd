@@ -18,6 +18,10 @@ namespace ResConv
             {
                 SparkBuffer.Deserialize(infile);
             }
+            else if (ext == ".lua")
+            {
+                LuaCypher.DecryptLua(infile);
+            }
         }
     }
 
