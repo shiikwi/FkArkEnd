@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Beyond.ManifestBinary/Beyond.ManifestBinary.csproj" Id="d7853cc5-6198-40eb-b70c-5b1ca399b3f4" />
   <Project Path="Beyond.Security/Beyond.Security.csproj" Id="9b83331a-77f4-4d3e-938c-1da5e3691211" />
   <Project Path="Beyond.SparkBuffer/Beyond.SparkBuffer.csproj" Id="926a0523-2bb0-433b-af98-b1c6df3760ce" />
   <Project Path="Beyond.VFS/Beyond.VFS.csproj" Id="7d84d7a3-edd6-4fc8-b027-833e9e1c6a01" />

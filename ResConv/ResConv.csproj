@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Beyond.ManifestBinary\Beyond.ManifestBinary.csproj" />
     <ProjectReference Include="..\Beyond.Security\Beyond.Security.csproj" />
     <ProjectReference Include="..\Beyond.SparkBuffer\Beyond.SparkBuffer.csproj" />
   </ItemGroup>

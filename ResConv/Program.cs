@@ -22,6 +22,10 @@ namespace ResConv
             {
                 LuaCypher.DecryptLua(infile);
             }
+            else if (ext == ".hgmmap")
+            {
+                Manifest.ManifestRead(infile);
+            }
         }
     }
 
