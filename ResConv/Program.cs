@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using AK.Wwise;
+using SparkBuffer;
+using Lua;
+using ManifestBinary;
 
 namespace ResConv
 {
@@ -16,7 +17,7 @@ namespace ResConv
             }
             else if (ext == ".bytes")
             {
-                SparkBuffer.Deserialize(infile);
+                SparkBufferManagement.Deserialize(infile);
             }
             else if (ext == ".lua")
             {

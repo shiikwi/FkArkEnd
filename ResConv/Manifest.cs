@@ -5,7 +5,7 @@ using Beyond.ManifestBinary;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace ResConv
+namespace ManifestBinary
 {
     public class Manifest
     {

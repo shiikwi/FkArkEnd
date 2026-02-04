@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ResConv
+namespace AK.Wwise
 {
     public class AkSoundEngine
     {

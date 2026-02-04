@@ -4,7 +4,7 @@ using System.Text;
 using Beyond.Security;
 using Xxtea;
 
-namespace ResConv
+namespace Lua
 {
     public class LuaCypher
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace ResConv
+namespace AK.Wwise
 {
     public class AkPckFile
     {

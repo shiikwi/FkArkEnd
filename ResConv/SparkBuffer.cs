@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using Beyond.SparkBuffer;
 
-namespace ResConv
+namespace SparkBuffer
 {
-    public class SparkBuffer
+    public class SparkBufferManagement
     {
         public static void Deserialize(string inPath)
         {
