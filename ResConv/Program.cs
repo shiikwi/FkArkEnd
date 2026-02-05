@@ -2,6 +2,7 @@
 using SparkBuffer;
 using Lua;
 using ManifestBinary;
+using Beyond.Resource;
 
 namespace ResConv
 {
@@ -26,6 +27,11 @@ namespace ResConv
             else if (ext == ".hgmmap")
             {
                 Manifest.ManifestRead(infile);
+            }
+            else if (ext == ".bin")
+            {
+                // StringPathHash.bin, InitStringPathHash.bin
+                StringPathHashBinary.InitMain(infile);
             }
         }
     }
