@@ -1,4 +1,4 @@
-My ArchiveTools of Arknights: Endfield GameVersion 1.0  
+My ArchiveTools of Arknights: Endfield GameVersion 1.1  
 
 ## Beyond.VFS
 Decrypt `.blc` to `.json`  

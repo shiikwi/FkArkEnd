@@ -49,6 +49,7 @@ namespace Beyond.VFS
 
                 main.Version = br.ReadInt32();
                 br.BaseStream.Seek(12, SeekOrigin.Current); //Skip ChaCha iv Region
+                br.BaseStream.Seek(4, SeekOrigin.Current);  //Skip unknown of 1.1ver   
                 main.GroupCfgName = ReadVfsString(br);
                 main.GroupCfgHashName = ReadBEInt64(br);
                 main.GroupFileInfoNum = br.ReadInt32();
@@ -63,6 +64,7 @@ namespace Beyond.VFS
                     chunk.ContentMD5 = ReadBEUInt128(br);
                     chunk.Length = br.ReadInt64();
                     chunk.BlockType = br.ReadByte();
+                    br.BaseStream.Seek(4, SeekOrigin.Current); //Skip unknown of 1.1ver 
 
                     int fileCount = br.ReadInt32();
                     for (int j = 0; j < fileCount; j++)
@@ -82,6 +84,7 @@ namespace Beyond.VFS
                             file.IvSeed = br.ReadInt64();
                         }
 
+                        br.BaseStream.Seek(4, SeekOrigin.Current);  //Skip padding
                         chunk.Files.Add(file);
                     }
                     main.AllChunks.Add(chunk);
