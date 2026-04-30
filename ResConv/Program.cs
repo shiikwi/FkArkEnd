@@ -3,6 +3,7 @@ using SparkBuffer;
 using Lua;
 using ManifestBinary;
 using Beyond.Resource;
+using IL2CPP;
 
 namespace ResConv
 {
@@ -32,6 +33,10 @@ namespace ResConv
             {
                 // StringPathHash.bin, InitStringPathHash.bin
                 StringPathHashBinary.InitMain(infile);
+            }
+            else if (Path.GetFileName(infile) == "global-metadata.dat")
+            {
+                GlobalMetadata.Fix(infile);
             }
         }
     }
